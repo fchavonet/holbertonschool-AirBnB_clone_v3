@@ -6,6 +6,7 @@ Contains the TestFileStorageDocs classes
 from datetime import datetime
 import inspect
 import models
+from models import storage
 from models.engine import file_storage
 from models.amenity import Amenity
 from models.base_model import BaseModel
@@ -113,3 +114,23 @@ class TestFileStorage(unittest.TestCase):
         with open("file.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_get(self):
+        """Test that get properly objects valid class and id"""
+        storage = FileStorage()
+        newcity = City(name="Toulouse", id="idtest_toulouse")
+        newcity.save()
+        result_get = storage.get(City, newcity.id)
+        self.assertEqual(newcity.name, result_get.name)
+        self.assertEqual(newcity.created_at, result_get.created_at)
+        self.assertEqual(newcity.id, result_get.id)
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_count(self):
+        """Test all count for class city"""
+        storage = FileStorage()
+        test_len = len(storage.all("City"))
+        newcity = City(name="Agen")
+        newcity.save()
+        self.assertEqual(test_len + 1, storage.count(City))
