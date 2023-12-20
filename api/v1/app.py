@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """Main module to start the Flask application"""
 
-from flask import Flask
+from flask import Flask, jsonify
 from models import storage
 from api.v1.views import app_views
 from os import getenv
@@ -14,6 +14,12 @@ app.register_blueprint(app_views)
 def teardown_db(exception):
     """Teardown method to close the storage"""
     storage.close()
+
+
+@app.errorhandler(404)
+def not_found(error):
+    """Handles 404 errors with a JSON response"""
+    return jsonify({"error": "Not found"}), 404
 
 
 if __name__ == "__main__":
